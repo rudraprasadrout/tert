@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Proof</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/report.css') }}">
+    <style>
+        .summary-card {
+            background: #f9f9f9;
+            border-left: 5px solid #170b85;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+        }
+        .summary-card h4 {
+            margin-top: 0;
+            color: #170b85;
+        }
+        .summary-card p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-shape shape1"></div>
+    <div class="bg-shape shape2"></div>
+    <div class="bg-shape shape3"></div>
+    
+    <a href="/" class="home-btn">
+      <span class="home-icon">🏠</span> Home
+    </a>
+
+    <div class="container fade-in-up">
+        <h2>Upload Proof for <span>Ticket #{{ complaint[0] }}</span></h2>
+
+        <div class="summary-card">
+            <h4>Complaint Summary</h4>
+            <p><strong>Department:</strong> {{ complaint[10] }}</p>
+            <p><strong>Details:</strong> {{ complaint[11] }}</p>
+            <p><strong>Location:</strong> {{ complaint[7] }}, {{ complaint[4] }}</p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="form-card">
+            <div class="input-group">
+                <label for="proof">Attach Proof (Image/Video):</label>
+                <input type="file" id="proof" name="proof" accept="image/*,video/*" required>
+            </div>
+
+            <div class="btn-group">
+                <button type="submit" class="btn">Upload and Finish</button>
+            </div>
+        </form>
+    </div>
+
+    <footer>
+        <p>© 2025 C | Designed with ❤️ for better governance</p>
+    </footer>
+</body>
+</html>

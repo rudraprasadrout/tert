@@ -1,0 +1,101 @@
+<!-- templates/admin_complaint_view.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Complaint #{{ complaint.id }} - Admin</title>
+    <!-- UPDATED: Link to the new stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admincomplaintview.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <header class="admin-header">
+        <h1><i class="fas fa-file-alt"></i> Complaint #{{ complaint.id }}</h1>
+        <div><a class="btn" href="{{ url_for('admin_dashboard') }}"><i class="fas fa-arrow-left"></i> Back</a></div>
+    </header>
+
+    <main class="admin-main single-complaint">
+        <section class="details-card">
+            <h3>Complaint Details</h3>
+            <p><strong>Status:</strong> 
+                <span class="pill {{ (complaint.status or 'Pending')|lower|replace(' ', '-') }}">
+                    {{ complaint.status or 'Pending' }}
+                </span>
+            </p>
+            <p><strong>Department:</strong> {{ complaint.department }}</p>
+            <p><strong>Complaint Text:</strong><br/> {{ complaint.complaint }}</p>
+            <p><strong>Last Updated:</strong> {{ complaint.updated_at | datetimeformat if complaint.updated_at else 'N/A' }}</p>
+            
+            <hr>
+            <h4>Reporter Information</h4>
+            <p><strong>User Account Phone:</strong> {{ complaint.user_phone }}</p>
+            <p><strong>Reporter Name:</strong> {{ complaint.name }}</p>
+            <p><strong>Contact Phone:</strong> {{ complaint.phone }}</p>
+
+            <hr>
+            <h4>Location Details</h4>
+            <p><strong>District:</strong> {{ complaint.district }}</p>
+            <p><strong>Block:</strong> {{ complaint.block }}</p>
+            <p><strong>Gram Panchayat (GP):</strong> {{ complaint.gp }}</p>
+            <p><strong>Village:</strong> {{ complaint.village }}</p>
+            <p><strong>Landmark:</strong> {{ complaint.landmark }}</p>
+            <p><strong>Pincode:</strong> {{ complaint.pincode }}</p>
+
+            <hr>
+            <h4>Attached Evidence</h4>
+            <p><strong>Proof (Image/Video):</strong>
+                {% if complaint.proof %}
+                    <a href="{{ url_for('static', filename='uploads/' + complaint.proof) }}" target="_blank">View Proof</a>
+                {% else %}
+                    None provided
+                {% endif %}
+            </p>
+            
+            <p><strong>Audio Description:</strong>
+                {% if complaint.voice_proof %}
+                    <audio controls style="width: 100%; margin-top: 8px;">
+                        <source src="{{ url_for('static', filename='uploads/' + complaint.voice_proof) }}" type="audio/webm">
+                        Your browser does not support the audio element.
+                    </audio>
+                {% else %}
+                    None provided
+                {% endif %}
+            </p>
+
+            <p><strong>Admin Proof:</strong>
+                {% if complaint.admin_proof %}
+                    <a href="{{ url_for('admin_proofs', filename=complaint.admin_proof) }}" target="_blank">View Resolution Proof</a>
+                {% else %}
+                    None provided
+                {% endif %}
+            </p>
+        </section>
+
+        <section class="action-card">
+            <h3>Update Status</h3>
+            <form method="post" action="{{ url_for('admin_update_status_route') }}" enctype="multipart/form-data">
+                <input type="hidden" name="cid" value="{{ complaint.id }}">
+                <label>
+                    New status
+                    <select name="status" required>
+                        <option value="Pending" {% if complaint.status=='Pending' %}selected{% endif %}>Pending</option>
+                        <option value="In Progress" {% if complaint.status=='In Progress' %}selected{% endif %}>In Progress</option>
+                        <option value="Resolved" {% if complaint.status=='Resolved' %}selected{% endif %}>Resolved</option>
+                        <option value="Rejected" {% if complaint.status=='Rejected' %}selected{% endif %}>Rejected</option>
+                    </select>
+                </label>
+
+                <label class="file-label">
+                    Attach proof (required for "Resolved")
+                    <input type="file" name="admin_proof" accept="image/*,video/*">
+                </label>
+
+                <div style="margin-top:12px">
+                    <button class="btn primary" type="submit"><i class="fas fa-save"></i> Update</button>
+                </div>
+            </form>
+        </section>
+    </main>
+</body>
+</html>
+

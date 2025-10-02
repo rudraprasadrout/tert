@@ -1,0 +1,200 @@
+/* static/css/admin_complaint_view.css */
+
+/* --- Global Styles & Variables --- */
+:root {
+    --primary-blue: #170b85;
+    --light-blue: #0a66ff;
+    --bg-color: #f4f7fc;
+    --card-bg: #ffffff;
+    --text-dark: #333;
+    --text-light: #555;
+    --border-color: #e9eef5;
+    --shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Poppins", "Segoe UI", sans-serif;
+    background: var(--bg-color);
+    color: var(--text-dark);
+}
+
+/* --- Header --- */
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--card-bg);
+    color: var(--primary-blue);
+    padding: 18px 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #fff;
+    background: var(--primary-blue);
+    border: 0;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    background: var(--light-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(10, 102, 255, 0.2);
+}
+
+/* --- Main Layout --- */
+.admin-main.single-complaint {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 25px;
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* --- Details & Action Cards --- */
+.details-card,
+.action-card {
+    background: var(--card-bg);
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+}
+
+.details-card h3,
+.action-card h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+    color: var(--primary-blue);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.details-card h4 {
+    font-size: 1rem;
+    color: var(--text-dark);
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.details-card p {
+    margin-bottom: 12px;
+    color: var(--text-light);
+    line-height: 1.6;
+}
+
+.details-card p strong {
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-right: 8px;
+    display: inline-block;
+    min-width: 150px; /* Aligns the values */
+}
+
+.details-card a {
+    color: var(--light-blue);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.details-card a:hover {
+    text-decoration: underline;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 20px 0;
+}
+
+/* --- Form Elements --- */
+.action-card form label {
+    display: block;
+    margin-bottom: 15px;
+    font-weight: 600;
+    color: var(--text-light);
+}
+
+.action-card form select,
+.action-card form input[type="file"] {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-color);
+    font-size: 1rem;
+    font-family: "Poppins", sans-serif;
+}
+
+.action-card form select:focus,
+.action-card form input[type="file"]:focus {
+    outline: none;
+    border-color: var(--light-blue);
+    box-shadow: 0 0 0 3px rgba(10, 102, 255, 0.15);
+}
+
+.action-card .btn.primary {
+    width: 100%;
+    justify-content: center;
+    padding: 12px;
+    font-size: 1rem;
+}
+
+/* --- Pills --- */
+.pill {
+    padding: 6px 12px;
+    border-radius: 20px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+}
+.pill.pending { background: #ffc107; color: #333; }
+.pill.in-progress { background: #17a2b8; }
+.pill.resolved { background: #28a745; }
+.pill.rejected { background: #dc3545; }
+
+/* --- Responsive Design --- */
+@media (max-width: 900px) {
+    .admin-main.single-complaint {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-main.single-complaint {
+        padding: 20px;
+    }
+    .admin-header {
+        padding: 15px;
+    }
+    .details-card p strong {
+        min-width: 120px;
+    }
+}

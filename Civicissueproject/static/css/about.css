@@ -1,0 +1,199 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body {
+  background: #f9faff;
+  color: #333;
+  overflow-x: hidden;
+}
+
+/* HOME BUTTON */
+.home-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: #170b85;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 30px;
+  font-weight: 600;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+  z-index: 1100;
+}
+
+.home-btn:hover {
+  background: #0056b3;
+  transform: translateY(-3px);
+}
+
+/* BACKGROUND SHAPES */
+.bg-shape {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.6;
+  z-index: -1;
+  animation: float 8s infinite alternate ease-in-out;
+}
+
+.shape1 {
+  width: 300px;
+  height: 300px;
+  background: #1602c7;
+  top: -100px;
+  left: -100px;
+}
+
+.shape2 {
+  width: 300px;
+  height: 300px;
+  background: #e7073f;
+  bottom: -120px;
+  right: -120px;
+}
+
+@keyframes float {
+  from { transform: translateY(0px); }
+  to { transform: translateY(-30px); }
+}
+
+/* HEADER */
+.header {
+  text-align: center;
+  padding: 100px 20px 50px;
+}
+
+.logo img {
+  width: 200px;
+  height: auto;
+  margin-bottom: 5px;
+}
+
+.logo h1 {
+  font-size: 28px;
+  color: #170b85;
+  font-weight: 700;
+}
+
+/* ABOUT SECTION */
+.about {
+  text-align: center;
+  padding: 40px 20px;
+  max-width: 700px;
+  margin: auto;
+}
+
+.about h2 {
+  font-size: 26px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.about p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #555;
+  animation: fadeInUp 1.2s ease;
+}
+
+/* TEAM SECTION */
+.team {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.team h2 {
+  font-size: 26px;
+  margin-bottom: 40px;
+  color: #333;
+}
+
+.team-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 25px;
+}
+
+.team-card {
+  background: #fff;
+  border-radius: 15px;
+  padding: 20px;
+  width: 200px;
+  text-align: center;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  animation: fadeInUp 1.5s ease;
+}
+
+.team-card:hover {
+  transform: translateY(-10px) scale(1.05);
+}
+
+.team-card img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-bottom: 12px;
+}
+
+.team-card h3 {
+  font-size: 18px;
+  color: #170b85;
+}
+
+.team-card p {
+  font-size: 14px;
+  color: #555;
+}
+
+/* CONTACT SECTION */
+.contact {
+  padding: 60px 20px;
+  text-align: center;
+  background: #f1f5ff;
+}
+
+.contact h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.contact p {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.contact a {
+  color: #170b85;
+  text-decoration: none;
+}
+
+.contact a:hover {
+  text-decoration: underline;
+}
+
+/* FOOTER */
+.footer {
+  background: #170b85;
+  color: #fff;
+  text-align: center;
+  padding: 15px 20px;
+  font-size: 14px;
+}
+
+/* ANIMATIONS */
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(40px); }
+  100% { opacity: 1; transform: translateY(0); }
+}

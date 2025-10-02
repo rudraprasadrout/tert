@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CityZen - Sign Up</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+  <!-- Animated background blobs -->
+  <div class="bg-shape shape1"></div>
+  <div class="bg-shape shape2"></div>
+  <!-- HOME BUTTON -->
+  <a href="/" class="home-btn">
+    <span class="home-icon">🏠</span> Home
+  </a>
+
+  <div class="container">
+    <div class="left">
+      <h2>Create an account</h2>
+
+      <!-- Updated form -->
+      <form method="POST" action="/signup">
+        <div class="input-group">
+          <label for="phone">Phone Number:</label>
+          <input type="tel" id="phone" name="phone" placeholder="Enter your Phone Number" required>
+        </div>
+
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Enter your password" required>
+        </div>
+
+        <div class="checkbox">
+          <input type="checkbox" id="remember">
+          <label for="remember">Remember me</label>
+        </div>
+
+        <button type="submit" class="btn">Sign up</button>
+        <!-- <button type="button" class="btn-outline">Continue with Email</button> -->
+
+        <div class="signup">
+          Already have an account? <a href="/user_login">Log in</a>
+        </div>
+      </form>
+    </div>
+
+    <div class="right">
+      <img src="https://cdn-icons-png.flaticon.com/512/4042/4042171.png" alt="Signup illustration">
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,206 @@
+/* General Styles */
+body {
+    margin: 0;
+    font-family: "Segoe UI", sans-serif;
+    background: #f5f7fb;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Animated Background Blobs */
+.bg-shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.45;
+    z-index: -1;
+    animation: float 12s ease-in-out infinite;
+}
+.shape1 { width: 420px; height: 420px; background: #170b85; top: -120px; left: -100px; }
+.shape2 { width: 380px; height: 380px; background: #43e97b; bottom: -140px; right: -90px; animation-delay: 4s; }
+.shape3 { width: 300px; height: 300px; background: #ff6ec7; top: 35%; left: 65%; animation-delay: 7s; }
+@keyframes float { 0%, 100% { transform: translateY(0) translateX(0); } 50% { transform: translateY(-50px) translateX(25px); } }
+
+/* Complaint Form Container */
+.container {
+    background: #fff;
+    border-radius: 22px;
+    padding: 50px 60px;
+    width: 95%;
+    max-width: 900px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.12);
+    text-align: center;
+    margin-top: 70px;
+    position: relative;
+    animation: fadeInUp 1s ease forwards;
+}
+
+/* Heading */
+h2 { font-size: 40px; margin-bottom: 25px; color: #222; font-weight: 700; }
+h2 span { color: #170b85; }
+
+/* Form Card */
+.form-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    margin-top: 15px;
+    width: 100%;
+}
+
+/* Input Groups */
+.input-group {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+}
+/* Make specific items span both columns */
+.input-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.input-group label { font-size: 15px; margin-bottom: 6px; font-weight: 600; color: #444; }
+.input-group input, .input-group select, .input-group textarea {
+    padding: 14px 16px;
+    border: 1.5px solid #ddd;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: border 0.3s ease, box-shadow 0.3s ease;
+    width: 100%;
+}
+.input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+    border-color: #170b85;
+    box-shadow: 0 0 12px rgba(79,172,254,0.3);
+    outline: none;
+}
+textarea { min-height: 130px; }
+
+/* Voice Recorder */
+.voice-recorder {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #f5f7fb;
+    border-radius: 10px;
+}
+.record-btn {
+    background-color: #170b85;
+    color: white;
+    border: none;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+.record-btn.recording {
+    background-color: #dc3545;
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+}
+.timer {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    min-width: 50px;
+}
+#audioPlayback {
+    width: 100%;
+    height: 45px;
+}
+#audioPlayback.hidden, .record-btn.hidden, .timer.hidden { display: none; }
+.hidden { display: none; }
+
+/* File Input */
+.input-group input[type="file"] {
+    border: none;
+    background: #f5f7fb;
+    padding: 8px;
+    cursor: pointer;
+}
+.input-group input[type="file"]::-webkit-file-upload-button {
+    background: #170b85;
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+.input-group input[type="file"]::-webkit-file-upload-button:hover { background: #3a8ae0; }
+
+/* Buttons */
+.btn-group {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 15px;
+}
+.btn, .btn-outline {
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 180px;
+}
+.btn { background: linear-gradient(45deg, #170b85, #43e97b); border: none; color: #fff; }
+.btn:hover { transform: translateY(-2px); opacity: 0.95; }
+.btn-outline { background: #fff; border: 2px solid #170b85; color: #170b85; }
+.btn-outline:hover { background: #170b85; color: #fff; transform: translateY(-2px); }
+
+/* Home Button */
+.home-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    text-decoration: none;
+    background: #fff;
+    border: 2px solid #170b85;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #170b85;
+    transition: all 0.3s ease;
+}
+.home-btn:hover { background: #170b85; color: #fff; transform: scale(1.05); }
+.home-icon { margin-right: 6px; }
+
+/* Footer */
+footer { text-align: center; font-size: 14px; color: #666; margin: 40px 0 20px; padding: 10px; }
+
+/* Animations */
+.fade-in-up { opacity: 0; transform: translateY(25px); animation: fadeInUp 1s ease forwards; }
+@keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+/* Responsiveness */
+@media (max-width: 768px) {
+    body { padding: 20px; }
+    .container { padding: 25px 20px; margin-top: 40px; }
+    h2 { font-size: 26px; }
+    .form-card { grid-template-columns: 1fr; gap: 16px; }
+    .input-group label { font-size: 14px; }
+    .input-group input, .input-group select, .input-group textarea { font-size: 14px; padding: 12px; }
+    .btn-group { flex-direction: column; gap: 12px; }
+    .btn, .btn-outline { width: 100%; min-width: unset; }
+}
+

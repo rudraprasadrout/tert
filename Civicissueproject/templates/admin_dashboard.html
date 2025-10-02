@@ -1,0 +1,276 @@
+<!-- templates/admin_dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Admin Dashboard - Civic</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .chart-fallback {
+            width: 100%;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            font-size: 14px;
+            border: 1px dashed #ccc;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+
+        /* Lightbox styling */
+        .lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .lightbox:target {
+            display: flex;
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .lightbox .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 40px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .lightbox .close:hover {
+            color: #ff4444;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="admin-header">
+        <div class="left">
+            <h1><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
+        </div>
+        <div class="right">
+            <a class="btn" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </header>
+
+    <main class="admin-main">
+        <section class="top-cards">
+            <div class="card metric">
+                <div class="title">Total Complaints</div>
+                <div class="value">{{ total }}</div>
+            </div>
+            <div class="card metric">
+                <div class="title">Pending</div>
+                <div class="value">{{ by_status.get('Pending', 0) }}</div>
+            </div>
+            {% if alerts and alerts|length > 0 %}
+            <div id="pending-alert" class="admin-alert">
+                <strong><i class="fas fa-exclamation-triangle"></i> Alert:</strong>
+                There are <b>{{ alerts|length }}</b> complaints pending for more than 5 days.
+                <ul style="margin-top:8px;">
+                    {% for a in alerts %}
+                    <li>Complaint #{{ a[0] }} ({{ a[1] }} / {{ a[2] }}) - "{{ a[3][:50] }}..."</li>
+                    {% endfor %}
+                </ul>
+                <a href="#" class="close">&times;</a>
+            </div>
+            {% endif %}
+
+            <div class="card metric">
+                <div class="title">Resolved</div>
+                <div class="value">{{ by_status.get('Resolved', 0) }}</div>
+            </div>
+            <div class="card metric">
+                <div class="title">Departments</div>
+                <div class="value">{{ by_dept|length }}</div>
+            </div>
+        </section>
+
+        <section class="charts">
+            <!-- Status -->
+            <div class="chart-card">
+                <h3><i class="fas fa-chart-bar"></i> By Status</h3>
+                {% if charts['status'] %}
+                <a href="#lightbox-status">
+                    <img src="{{ url_for('static', filename=charts['status']) }}" alt="status chart" loading="lazy">
+                </a>
+                {% else %}
+                <div class="chart-fallback">No Status Chart Available</div>
+                {% endif %}
+            </div>
+
+            <!-- Department -->
+            <div class="chart-card">
+                <h3><i class="fas fa-chart-pie"></i> By Department</h3>
+                {% if charts['department'] %}
+                <a href="#lightbox-department">
+                    <img src="{{ url_for('static', filename=charts['department']) }}" alt="department chart"
+                        loading="lazy">
+                </a>
+                {% else %}
+                <div class="chart-fallback">No Department Chart Available</div>
+                {% endif %}
+            </div>
+
+            <!-- Pincode -->
+            <div class="chart-card">
+                <h3><i class="fas fa-map"></i> Top Pincodes</h3>
+                {% if charts['pincode'] %}
+                <a href="#lightbox-pincode">
+                    <img src="{{ url_for('static', filename=charts['pincode']) }}" alt="pincode chart" loading="lazy">
+                </a>
+                {% else %}
+                <div class="chart-fallback">No Pincode Chart Available</div>
+                {% endif %}
+            </div>
+
+            <!-- Over Time -->
+            <div class="chart-card">
+                <h3><i class="fas fa-calendar-alt"></i> Complaints Over Time</h3>
+                {% if charts['time'] %}
+                <a href="#lightbox-time">
+                    <img src="{{ url_for('static', filename=charts['time']) }}" alt="Complaints over time"
+                        loading="lazy">
+                </a>
+                {% else %}
+                <div class="chart-fallback">No Time Chart Available</div>
+                {% endif %}
+            </div>
+
+            <!-- District -->
+            <div class="chart-card">
+                <h3><i class="fas fa-city"></i> Complaints by District</h3>
+                {% if charts['district'] %}
+                <a href="#lightbox-district">
+                    <img src="{{ url_for('static', filename=charts['district']) }}" alt="Complaints by district"
+                        loading="lazy">
+                </a>
+                {% else %}
+                <div class="chart-fallback">No District Chart Available</div>
+                {% endif %}
+            </div>
+
+            <!-- Dept vs Status -->
+            <div class="chart-card">
+                <h3><i class="fas fa-layer-group"></i> Dept vs Status</h3>
+                {% if charts['dept_status'] %}
+                <a href="#lightbox-deptstatus">
+                    <img src="{{ url_for('static', filename=charts['dept_status']) }}" alt="Dept vs status"
+                        loading="lazy">
+                </a>
+                {% else %}
+                <div class="chart-fallback">No Dept vs Status Chart Available</div>
+                {% endif %}
+            </div>
+
+            <!-- Odisha Heatmap (iframe cannot use lightbox zoom) -->
+            <div class="chart-card" style="width:100%;">
+                <h3><i class="fas fa-map-marked-alt"></i> Odisha Pending Complaints Heatmap</h3>
+                {% if charts['odisha_map'] %}
+                <iframe src="{{ url_for('static', filename=charts['odisha_map']) }}" width="100%" height="400px"
+                    style="border:none;" loading="lazy"></iframe>
+                {% else %}
+                <div class="chart-fallback">No Heatmap Available</div>
+                {% endif %}
+            </div>
+
+
+            <section class="complaints-table">
+
+                <div class="table-header">
+                    <h3><i class="fas fa-list"></i> All Complaints</h3>
+                    <form method="get" action="{{ url_for('admin_dashboard') }}" class="filter-form">
+                        <input type="text" name="q" placeholder="Search by phone / dept / pincode" />
+                        <button class="btn secondary"><i class="fas fa-search"></i></button>
+                        <a href="{{ url_for('admin_features.export_complaints_csv') }}" class="btn btn-success">
+                        <i class="fas fa-download"></i> Export Complaints (CSV)
+                    </a>
+                    </form>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>User</th>
+                                <th>Dept</th>
+                                <th>Village</th>
+                                <th>Complaint</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in complaints %}
+                            <tr>
+                                <td>{{ row[0] }}</td>
+                                <td><a href="{{ url_for('admin_user_view', user_phone=row[1]) }}">{{ row[1] }}</a></td>
+                                <td>{{ row[10] }}</td>
+                                <td>{{ row[7] }}</td>
+                                <td class="truncate">
+                                    {{ (row[11] or '')[:60] ~ ('...' if row[11] and row[11]|length > 60 else '') }}
+                                </td>
+                                <td><span class="pill {{ (row[13] or 'Pending')|lower|replace(' ', '-') }}">{{ row[13]
+                                        or
+                                        'Pending' }}</span></td>
+                                <td>
+                                    <a class="btn small" href="{{ url_for('admin_complaint_view', cid=row[0]) }}"><i
+                                            class="fas fa-eye"></i> View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+    </main>
+
+    <!-- ✅ Lightboxes moved here -->
+    <div id="lightbox-status" class="lightbox">
+        <a href="#" class="close">&times;</a>
+        <img src="{{ url_for('static', filename=charts['status']) }}" alt="status chart full">
+    </div>
+
+    <div id="lightbox-department" class="lightbox">
+        <a href="#" class="close">&times;</a>
+        <img src="{{ url_for('static', filename=charts['department']) }}" alt="department chart full">
+    </div>
+
+    <div id="lightbox-pincode" class="lightbox">
+        <a href="#" class="close">&times;</a>
+        <img src="{{ url_for('static', filename=charts['pincode']) }}" alt="pincode chart full">
+    </div>
+
+    <div id="lightbox-time" class="lightbox">
+        <a href="#" class="close">&times;</a>
+        <img src="{{ url_for('static', filename=charts['time']) }}" alt="Complaints over time full">
+    </div>
+
+    <div id="lightbox-district" class="lightbox">
+        <a href="#" class="close">&times;</a>
+        <img src="{{ url_for('static', filename=charts['district']) }}" alt="Complaints by district full">
+    </div>
+
+    <div id="lightbox-deptstatus" class="lightbox">
+        <a href="#" class="close">&times;</a>
+        <img src="{{ url_for('static', filename=charts['dept_status']) }}" alt="Dept vs status full">
+    </div>
+</body>
+
+</html>

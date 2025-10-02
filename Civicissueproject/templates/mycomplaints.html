@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>My Complaints</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/mycomplaints.css') }}">
+  <style>
+    /* Helper classes for the edit feature */
+    .editable-field.hidden,
+    .readonly-field.hidden,
+    .modal-btn.hidden {
+      display: none;
+    }
+
+    .modal-footer {
+      padding: 20px 0 0;
+      margin-top: 20px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .modal-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .edit-btn {
+      background-color: #ffc107;
+      color: #333;
+    }
+
+    .save-btn {
+      background-color: #28a745;
+      color: #fff;
+    }
+    
+    /* ===== NEW STYLE FOR DELETE BUTTON (can also be in CSS file) ===== */
+    .delete-btn {
+      background-color: #dc3545;
+      color: #fff;
+      margin-right: auto; /* Pushes it to the left */
+    }
+
+    .modal-details-grid input,
+    .modal-details-grid textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      font-family: "Poppins", sans-serif;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h2><i class="fas fa-clipboard-list"></i> My Complaints</h2>
+  </header>
+  <a href="{{ url_for('home') }}" class="home-btn">
+    <i class="fas fa-home"></i> Home
+  </a>
+
+  <main class="complaints-container">
+    {% if complaints %}
+    {% for c in complaints %}
+    <div class="complaint-card" data-id="{{ c.id }}" data-status="{{ c.status or 'Pending' }}"
+      data-department="{{ c.department|e }}" data-complaint="{{ c.complaint|e }}" data-name="{{ c.name|e }}"
+      data-phone="{{ c.phone|e }}" data-district="{{ c.district|e }}" data-block="{{ c.block|e }}"
+      data-gp="{{ c.gp|e }}" data-village="{{ c.village|e }}" data-landmark="{{ c.landmark|e }}"
+      data-pincode="{{ c.pincode|e }}"
+      data-updatedat="{{ c.updated_at | datetimeformat if c.updated_at else 'Not yet updated' }}"
+      data-proof="{{ c.proof }}" data-adminproof="{{ c.admin_proof }}" data-voiceproof="{{ c.voice_proof }}"
+      data-proofurl="{{ url_for('static', filename='uploads/' + c.proof) if c.proof else '' }}"
+      data-adminproofurl="{{ url_for('admin_proofs', filename=c.admin_proof) if c.admin_proof else '' }}"
+      data-uploadurl="{{ url_for('uploads.upload_proof_page', cid=c.id) }}"
+      data-voiceproofurl="{{ url_for('static', filename='uploads/' + c.voice_proof) if c.voice_proof else '' }}">
+
+      <div class="card-header">
+        <span class="complaint-id">Complaint #{{ c.id }}</span>
+        <span class="status-pill {{ (c.status or 'Pending')|lower|replace(' ', '-') }}">{{ c.status or 'Pending'
+          }}</span>
+      </div>
+
+      <div class="card-image-container">
+        {% if c.proof %}
+        <img src="{{ url_for('static', filename='uploads/' + c.proof) }}" alt="Proof for Complaint #{{ c.id }}">
+        {% else %}
+        <img src="{{ url_for('static', filename='images/default_proof.png') }}" alt="Default Proof Image">
+        {% endif %}
+      </div>
+
+      <div class="card-info">
+        <p><strong>Department:</strong> {{ c.department|e }}</p>
+        <p><strong>Location:</strong> {{ c.district|e }}</p>
+      </div>
+      <div class="card-footer">
+        <button class="card-btn details-btn">View Details</button>
+        {% if c.status and c.status|lower == 'pending' %}
+        <button class="card-btn edit-btn">Edit</button>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p class="no-data"><i class="fas fa-folder-open"></i> You haven't submitted any complaints yet.</p>
+    {% endif %}
+  </main>
+
+  <div id="complaintModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <button class="modal-close-btn">&times;</button>
+      <div class="modal-header">
+        <h2 id="modal-text-id">Complaint #000</h2>
+        <span id="modal-text-status" class="status-pill"></span>
+      </div>
+      <div class="modal-body">
+        <div id="modalImageContainer" class="modal-image-container"></div>
+        <div class="modal-details-grid">
+          <div class="modal-detail-item"><i class="fas fa-building"></i>
+            <div><strong>Department</strong>
+              <p id="modal-text-department" class="readonly-field"></p><input id="modal-input-department"
+                class="editable-field hidden" type="text">
+            </div>
+          </div>
+          <div class="modal-detail-item"><i class="fas fa-user"></i>
+            <div><strong>Name</strong>
+              <p id="modal-text-name" class="readonly-field"></p><input id="modal-input-name"
+                class="editable-field hidden" type="text">
+            </div>
+          </div>
+          <div class="modal-detail-item"><i class="fas fa-phone"></i>
+            <div><strong>Phone</strong>
+              <p id="modal-text-phone" class="readonly-field"></p><input id="modal-input-phone"
+                class="editable-field hidden" type="text">
+            </div>
+          </div>
+          <div class="modal-detail-item"><i class="fas fa-map-marker-alt"></i>
+            <div><strong>District</strong>
+              <p id="modal-text-district" class="readonly-field"></p><input id="modal-input-district"
+                class="editable-field hidden" type="text">
+            </div>
+          </div>
+          <div class="modal-detail-item"><i class="fas fa-location-dot"></i>
+            <div><strong>Block</strong>
+              <p id="modal-text-block" class="readonly-field"></p><input id="modal-input-block"
+                class="editable-field hidden" type="text">
+            </div>
+          </div>
+          <div class="modal-detail-item"><i class="fas fa-landmark"></i>
+            <div><strong>GP</strong>
+              <p id="modal-text-gp" class="readonly-field"></p><input id="modal-input-gp" class="editable-field hidden"
+                type="text">
+            </div>
+          </div>
+          <div class="modal-detail-item"><i class="fas fa-house"></i>
+            <div><strong>Village</strong>
+              <p id="modal-text-village" class="readonly-field"></p><input id="modal-input-village"
+                class="editable-field hidden" type="text">
+            </div>
+          </div>
+          <div class="modal-detail-item"><i class="fas fa-map-pin"></i>
+            <div><strong>Landmark</strong>
+              <p id="modal-text-landmark" class="readonly-field"></p><input id="modal-input-landmark"
+                class="editable-field hidden" type="text">
+            </div>
+          </div>
+          <div class="modal-detail-item"><i class="fas fa-hashtag"></i>
+            <div><strong>Pincode</strong>
+              <p id="modal-text-pincode" class="readonly-field"></p><input id="modal-input-pincode"
+                class="editable-field hidden" type="text">
+            </div>
+          </div>
+          <div class="modal-detail-item full-width"><i class="fas fa-comment-dots"></i>
+            <div><strong>Complaint Details</strong>
+              <p id="modal-text-complaint" class="readonly-field"></p><textarea id="modal-input-complaint"
+                class="editable-field hidden"></textarea>
+            </div>
+          </div>
+          <div class="modal-detail-item"><i class="fas fa-paperclip"></i>
+            <div><strong>Image/Video Proof</strong>
+              <p id="modal-link-proof"></p>
+            </div>
+          </div>
+          <div class="modal-detail-item" id="modalVoiceItem"><i class="fas fa-voicemail"></i>
+            <div><strong>Audio Description</strong>
+              <p id="modal-player-voice"></p>
+            </div>
+          </div>
+          <div class="modal-detail-item"><i class="fas fa-file-circle-check"></i>
+            <div><strong>Admin Resolution</strong>
+              <p id="modal-link-adminproof"></p>
+            </div>
+          </div>
+          <div class="modal-detail-item full-width"><i class="fas fa-clock"></i>
+            <div><strong>Last Updated</strong>
+              <p id="modal-text-updatedat"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="modalDeleteBtn" class="modal-btn delete-btn hidden"><i class="fas fa-trash"></i> Delete</button>
+        <button id="modalSaveBtn" class="modal-btn save-btn hidden"><i class="fas fa-save"></i> Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <section class="feedback-section">
+    <h3 class="feedback-title"><i class="fas fa-comment-dots"></i> Share Your Feedback</h3>
+    <form class="feedback-form" action="{{ url_for('submit_feedback') }}" method="POST">
+
+      <div class="form-group">
+        <label for="feedbackName"><i class="fas fa-user"></i> Name</label>
+        <input type="text" id="feedbackName" name="name" placeholder="Enter your name" required>
+      </div>
+
+      <div class="form-group">
+        <label for="feedbackEmail"><i class="fas fa-envelope"></i> Email</label>
+        <input type="email" id="feedbackEmail" name="email" placeholder="Enter your email" required>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="feedbackType"><i class="fas fa-list"></i> Feedback Type</label>
+        <select id="feedbackType" name="type" required>
+          <option value="">Select feedback type</option>
+          <option value="general">General Feedback</option>
+          <option value="complaint">Complaint Process</option>
+          <option value="suggestion">Suggestion</option>
+          <option value="technical">Technical Issue</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <div class="form-group rating-group">
+        <label><i class="fas fa-star"></i> Rate Your Experience</label>
+        <div class="star-rating">
+          <input type="radio" id="star5" name="rating" value="5" required>
+          <label for="star5">★</label>
+          <input type="radio" id="star4" name="rating" value="4">
+          <label for="star4">★</label>
+          <input type="radio" id="star3" name="rating" value="3">
+          <label for="star3">★</label>
+          <input type="radio" id="star2" name="rating" value="2">
+          <label for="star2">★</label>
+          <input type="radio" id="star1" name="rating" value="1">
+          <label for="star1">★</label>
+        </div>
+      </div>
+
+      <div class="form-group message-group">
+        <label for="feedbackMessage"><i class="fas fa-pen"></i> Your Feedback</label>
+        <textarea id="feedbackMessage" name="message" placeholder="Share your thoughts, suggestions, or concerns..."
+          required></textarea>
+      </div>
+
+      <button type="submit" class="submit-feedback-btn">
+        <i class="fas fa-paper-plane"></i> Submit Feedback
+      </button>
+    </form>
+  </section>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const modal = document.getElementById('complaintModal');
+      const closeModalBtn = document.querySelector('.modal-close-btn');
+
+      const fields = ['department', 'name', 'phone', 'district', 'block', 'gp', 'village', 'landmark', 'pincode', 'complaint'];
+
+      const openModal = (card, mode = 'read') => {
+        const cardData = card.dataset;
+
+        document.getElementById('modal-text-id').textContent = `Complaint #${cardData.id}`;
+        const statusPill = document.getElementById('modal-text-status');
+        statusPill.textContent = cardData.status;
+        statusPill.className = `status-pill ${cardData.status.toLowerCase().replace(' ', '-')}`;
+
+        fields.forEach(field => {
+          document.getElementById(`modal-text-${field}`).textContent = cardData[field];
+          document.getElementById(`modal-input-${field}`).value = cardData[field];
+        });
+        document.getElementById('modal-text-updatedat').textContent = cardData.updatedat;
+
+        const imageContainer = document.getElementById('modalImageContainer');
+        imageContainer.innerHTML = cardData.proofurl
+          ? `<img src="${cardData.proofurl}" alt="Proof">`
+          : `<img src="{{ url_for('static', filename='images/default_proof.png') }}" alt="Default Proof Image">`;
+
+        document.getElementById('modal-link-proof').innerHTML = cardData.proof
+          ? `<a href="${cardData.proofurl}" target="_blank">View Full Proof</a>`
+          : `<a href="${cardData.uploadurl}" class="upload-link">Upload Proof</a>`;
+
+        document.getElementById('modal-link-adminproof').innerHTML = cardData.adminproof
+          ? `<a href="${cardData.adminproofurl}" target="_blank">View Resolution Proof</a>`
+          : 'Not available yet';
+
+        const voiceItem = document.getElementById('modalVoiceItem');
+        const voicePlayer = document.getElementById('modal-player-voice');
+        if (cardData.voiceproof && cardData.voiceproofurl) {
+          voicePlayer.innerHTML = `<audio controls src="${cardData.voiceproofurl}"></audio>`;
+          voiceItem.style.display = 'flex';
+        } else {
+          voicePlayer.innerHTML = '';
+          voiceItem.style.display = 'none';
+        }
+
+        document.getElementById('modalSaveBtn').dataset.cardId = `card-${cardData.id}`;
+        // ===== NEW: Set card ID for delete button as well =====
+        document.getElementById('modalDeleteBtn').dataset.cardId = `card-${cardData.id}`;
+        card.id = `card-${cardData.id}`;
+
+        setModalMode(mode);
+        modal.classList.remove('hidden');
+      };
+
+      const setModalMode = (mode) => {
+        const isEdit = mode === 'edit';
+        modal.querySelectorAll('.readonly-field').forEach(f => f.classList.toggle('hidden', isEdit));
+        modal.querySelectorAll('.editable-field').forEach(f => f.classList.toggle('hidden', !isEdit));
+        document.getElementById('modalSaveBtn').classList.toggle('hidden', !isEdit);
+        // ===== NEW: Show/hide delete button in edit mode =====
+        document.getElementById('modalDeleteBtn').classList.toggle('hidden', !isEdit);
+      };
+
+      document.querySelectorAll('.complaint-card').forEach(card => {
+        card.querySelector('.details-btn')?.addEventListener('click', () => openModal(card, 'read'));
+        card.querySelector('.edit-btn')?.addEventListener('click', () => openModal(card, 'edit'));
+      });
+
+      // ===== NEW: EVENT LISTENER FOR DELETE BUTTON =====
+      document.getElementById('modalDeleteBtn').addEventListener('click', async (event) => {
+        const complaintId = document.getElementById('modal-text-id').textContent.replace('Complaint #', '');
+        
+        // 1. Show confirmation dialog
+        const isConfirmed = confirm('Are you sure you want to delete this complaint? This action cannot be undone.');
+
+        if (isConfirmed) {
+          // 2. Send DELETE request to the backend
+          const response = await fetch(`/api/complaint/${complaintId}`, {
+            method: 'DELETE',
+          });
+          
+          if (response.ok) {
+            alert('Complaint deleted successfully!');
+            // 3. Remove the card from the page
+            const card = document.querySelector(`.complaint-card[data-id='${complaintId}']`);
+            if (card) {
+                card.remove();
+            }
+            closeModal(); // Close the modal
+          } else {
+            // 4. Show an error message if something goes wrong
+            const result = await response.json();
+            alert(`Error: ${result.error || 'Could not delete the complaint.'}`);
+          }
+        }
+      });
+
+      document.getElementById('modalSaveBtn').addEventListener('click', async (event) => {
+        const complaintId = document.getElementById('modal-text-id').textContent.replace('Complaint #', '');
+        const cardId = event.target.dataset.cardId;
+        const card = document.getElementById(cardId);
+
+        const updatedData = {};
+        fields.forEach(field => {
+          updatedData[field] = document.getElementById(`modal-input-${field}`).value;
+        });
+
+        const response = await fetch(`/api/complaint/${complaintId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedData)
+        });
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          alert('Changes saved successfully!');
+          for (const key in updatedData) {
+            document.getElementById(`modal-text-${key}`).textContent = updatedData[key];
+            if (card) card.dataset[key] = updatedData[key];
+          }
+          if (card) {
+            card.querySelector('.card-info p:first-of-type strong').nextSibling.textContent = ` ${updatedData.department}`;
+            card.querySelector('.card-info p:last-of-type strong').nextSibling.textContent = ` ${updatedData.district}`;
+          }
+          setModalMode('read');
+        } else {
+          alert(`Error: ${result.error || 'Could not save changes.'}`);
+        }
+      });
+
+      const closeModal = () => modal.classList.add('hidden');
+      closeModalBtn.addEventListener('click', closeModal);
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+    });
+  </script>
+</body>
+
+</html>
